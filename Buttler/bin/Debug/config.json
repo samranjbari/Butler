@@ -1,0 +1,7 @@
+{
+  "JenkinsServerUrl": "http://localhost:8080/",
+  "JobNames": [
+    "CCWeb"
+  ],
+  "TimerInterval": 10000
+}
