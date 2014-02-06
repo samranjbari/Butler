@@ -20,17 +20,15 @@ namespace Butler
         {
             this.Config = config;
         }
-
-        //public static string GetJsonDataFor(string url)
-        //{
-        //    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-        //    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-        //    return new StreamReader(response.GetResponseStream()).ReadToEnd();
-        //}
-
+        
         public static T GetJsonDataFor<T>(string url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+            string username = "samranjbari";
+            string password = "Passwords";
+            string encoded = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
+            request.Headers.Add("Authorization", "Basic " + encoded);
+
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             var json = new StreamReader(response.GetResponseStream()).ReadToEnd();
 

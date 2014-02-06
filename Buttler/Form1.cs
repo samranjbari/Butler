@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Butler
 {
@@ -22,8 +23,36 @@ namespace Butler
         {
             this.notifyIcon1.ContextMenuStrip.Opening += new CancelEventHandler(ContextMenuStrip_Opening);
             this.notifyIcon1.ContextMenuStrip.ItemClicked += new ToolStripItemClickedEventHandler(ContextMenuStrip_ItemClicked);
-            
+
+            // get latest build
+            AllJobs jobs = JsonHelpers.GetJsonDataFor<AllJobs>(@"http://localhost:8080/api/json");
+
+            foreach (var job in jobs.Jobs)
+            {
+                JenkinsJob jobOne = JsonHelpers.GetJsonDataFor<JenkinsJob>(string.Format(@"http://localhost:8080/job/{0}/api/json", job.Name));
+
+                var jobDetail = JsonHelpers.GetJsonDataFor<JenkinsJobDetails>(string.Format("{0}/api/json", jobOne.LastBuild.Url));
+                var causeJson = JsonConvert.SerializeObject(jobDetail.Actions[0]);
+                jobDetail.Causes = JsonConvert.DeserializeObject<CausesObject>(causeJson);
+
+                var strip = new System.Windows.Forms.ToolStripMenuItem(job.Name);
+
+                AddSubStrip(strip, string.Format("Last build was {0} by {1}", jobDetail.Result, jobDetail.Causes.Causes[0].UserName));
+                AddSubStrip(strip, "Build Now");
+                
+                contextMenuStrip1.Items.Insert(0, strip);
+            }
+
             timer1.Start();
+        }
+
+        private void AddSubStrip(ToolStripMenuItem strip, string text)
+        {
+            var sub = new ToolStripMenuItem(text);
+            strip.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] 
+            {
+                sub
+            });
         }
 
         void ContextMenuStrip_Opening(object sender, CancelEventArgs e)
@@ -49,6 +78,7 @@ namespace Butler
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            string message = string.Empty;
             try
             {
                 timer1.Stop();
@@ -80,10 +110,20 @@ namespace Butler
 
                 timer1.Start();
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
             finally
             {
-                timer1.Start();
+                if (!string.IsNullOrEmpty(message))
+                {
+                    notifyIcon1.ShowBalloonTip(5000, "Invalid Jenkins Server or Job Name", message, ToolTipIcon.Error);
+                }
+                else
+                {
+                    timer1.Start();
+                }
             }
         }
     }

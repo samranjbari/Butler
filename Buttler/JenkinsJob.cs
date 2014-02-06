@@ -13,6 +13,7 @@ namespace Butler
     /// </summary>
     public class JenkinsJob
     {
+        public string Name { get; set; }
         public string Description { get; set; }
         public string DisplayName { get; set; }
         public string Url { get; set; }
