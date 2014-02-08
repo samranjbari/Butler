@@ -15,6 +15,8 @@ namespace Butler
         public string JenkinsServerUrl { get; set; }
         public List<string> JobNames { get; set; }
         public int TimerInterval { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
 
         public Configuration()
         {

@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace Butler
 {
@@ -50,27 +50,31 @@ namespace Butler
 
         void ContextMenuStrip_Opening(object sender, CancelEventArgs e)
         {
-            // get latest build
-            AllJobs jobs = JsonHelpers.GetJsonDataFor<AllJobs>(@"http://localhost:8080/api/json");
-
-            foreach (var job in jobs.Jobs)
+            try
             {
-                var strip = new System.Windows.Forms.ToolStripMenuItem(job.Name);
+                // get latest build
+                AllJobs jobs = JsonHelpers.GetJsonDataFor<AllJobs>(string.Empty);
 
-                JenkinsJob jobOne = JsonHelpers.GetJsonDataFor<JenkinsJob>(string.Format(@"http://localhost:8080/job/{0}/api/json", job.Name));
-
-                if (jobOne.LastBuild != null)
+                foreach (var job in jobs.Jobs)
                 {
-                    var jobDetail = JsonHelpers.GetJsonDataFor<JenkinsJobDetails>(string.Format("{0}/api/json", jobOne.LastBuild.Url));
-                    var causeJson = JsonConvert.SerializeObject(jobDetail.Actions[0]);
-                    jobDetail.Causes = JsonConvert.DeserializeObject<CausesObject>(causeJson);
+                    var strip = new System.Windows.Forms.ToolStripMenuItem(job.Name);
 
-                    AddSubStrip(strip, string.Format("Last build was {0} by {1}", jobDetail.Result, jobDetail.Causes.Causes[0].UserName));
-                    AddSubStrip(strip, "Build Now");
+                    JenkinsJob jobOne = JsonHelpers.GetJsonDataFor<JenkinsJob>(string.Format(@"/job/{0}", job.Name));
 
-                    contextMenuStrip1.Items.Insert(0, strip);
+                    if (jobOne.LastBuild != null)
+                    {
+                        var jobDetail = JsonHelpers.GetJsonDataFor<JenkinsJobDetails>(string.Format("/job/{0}/{1}", jobOne.Name, jobOne.LastBuild.Number));
+                        var causeJson = JsonConvert.SerializeObject(jobDetail.Actions[0]);
+                        jobDetail.Causes = JsonConvert.DeserializeObject<CausesObject>(causeJson);
+
+                        AddSubStrip(strip, string.Format("Last build was {0} by {1}", jobDetail.Result, jobDetail.Causes.Causes[0].UserName));
+                        AddSubStrip(strip, "Build Now");
+
+                        contextMenuStrip1.Items.Insert(0, strip);
+                    }
                 }
             }
+            catch (Exception ex) { }
         }
 
         void ContextMenuStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -84,6 +88,7 @@ namespace Butler
                     break;
                 case "SETTINGS":
                     new SettingsForm().Show();
+                    timer1.Start();
                     break;
                 default:
                     break;
@@ -98,9 +103,9 @@ namespace Butler
                 timer1.Stop();
 
                 // get latest build
-                JenkinsJob job = JsonHelpers.GetJsonDataFor<JenkinsJob>(@"http://localhost:8080/job/CCWeb/api/json");
+                JenkinsJob job = JsonHelpers.GetJsonDataFor<JenkinsJob>(@"/job/CCWeb/api/json");
 
-                JenkinsJobDetails jobDetails = JsonHelpers.GetJsonDataFor<JenkinsJobDetails>(string.Format("{0}/api/json", job.LastBuild.Url));
+                JenkinsJobDetails jobDetails = JsonHelpers.GetJsonDataFor<JenkinsJobDetails>(string.Format("/job/{0}/{1}", job.Name, job.LastBuild.Number));
 
                 var causeJson = JsonConvert.SerializeObject(jobDetails.Actions[0]);
                 jobDetails.Causes = JsonConvert.DeserializeObject<CausesObject>(causeJson);

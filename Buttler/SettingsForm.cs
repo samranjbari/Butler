@@ -25,6 +25,8 @@ namespace Butler
             config = config.Load();
 
             txtServer.Text = config.JenkinsServerUrl;
+            txtUsername.Text = config.UserName;
+            txtPassword.Text = config.Password;
             if (config.JobNames.Count > 0)
             {
                 txtJob.Text = config.JobNames.FirstOrDefault();
@@ -35,6 +37,8 @@ namespace Butler
         {
             var config = new Configuration();
             config.JenkinsServerUrl = txtServer.Text.Trim();
+            config.UserName = txtUsername.Text.Trim();
+            config.Password = txtPassword.Text.Trim();
             config.JobNames.Add(txtJob.Text.Trim());
 
             config.Save();

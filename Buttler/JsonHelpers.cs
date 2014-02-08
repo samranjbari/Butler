@@ -15,17 +15,14 @@ namespace Butler
     /// </summary>
     public class JsonHelpers
     {
-        public Configuration Config { get; set; }
-        public JsonHelpers(Configuration config)
-        {
-            this.Config = config;
-        }
-        
         public static T GetJsonDataFor<T>(string url)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            string username = "samranjbari";
-            string password = "Passwords";
+            Configuration config = new Configuration();
+            config = config.Load();
+
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(string.Format("{0}{1}/api/json", config.JenkinsServerUrl, url));
+            string username = config.UserName;
+            string password = config.Password;
             string encoded = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(username + ":" + password));
             request.Headers.Add("Authorization", "Basic " + encoded);
 
