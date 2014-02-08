@@ -110,13 +110,19 @@ namespace Butler
                 var causeJson = JsonConvert.SerializeObject(jobDetails.Actions[0]);
                 jobDetails.Causes = JsonConvert.DeserializeObject<CausesObject>(causeJson);
 
+                if (jobDetails == null || jobDetails.Result == null)
+                {
+                    return;
+                }
+
                 if (jobDetails.Result.Equals("FAILURE", StringComparison.InvariantCultureIgnoreCase) && this.LastBuildResult != BuildResults.FAILURE)
                 {
                     this.LastBuildResult = BuildResults.FAILURE;
                     System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
                     this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Error")));
 
-                    notifyIcon1.ShowBalloonTip(5000, "Build Failed", "Build Failed", ToolTipIcon.Error);
+                    notifyIcon1.ShowBalloonTip(10000, "Build Failed", jobDetails.Causes.Causes[0].UserName + " broke the build.", ToolTipIcon.Error);
+                    this.notifyIcon1.Text = "Butler says Last Build Failed by " + jobDetails.Causes.Causes[0].UserName;
                 }
                 if (jobDetails.Result.Equals("SUCCESS", StringComparison.InvariantCultureIgnoreCase) && this.LastBuildResult != BuildResults.SUCCESS)
                 {
@@ -124,7 +130,8 @@ namespace Butler
                     System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
                     this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
 
-                    notifyIcon1.ShowBalloonTip(5000, "Build Is now back to normal", "Build Is back to normal", ToolTipIcon.Info);
+                    notifyIcon1.ShowBalloonTip(10000, "Build Is now back to normal", "Build Is back to normal", ToolTipIcon.Info);
+                    this.notifyIcon1.Text = "Butler says All builds are good!";
                 }
 
                 timer1.Start();
