@@ -10,3 +10,4 @@ C:\Users\Saman\Developments\Buttler\Buttler\bin\Debug\Newtonsoft.Json.xml
 C:\Users\Saman\Developments\Buttler\Buttler\obj\x86\Debug\Buttler.exe
 C:\Users\Saman\Developments\Buttler\Buttler\bin\Debug\Buttler.exe.config
 C:\Users\Saman\Developments\Buttler\Buttler\bin\Debug\Resources\assistant_error.ico
+C:\Users\Saman\Developments\Buttler\Buttler\obj\x86\Debug\Butler.csprojResolveAssemblyReference.cache

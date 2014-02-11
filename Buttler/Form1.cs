@@ -102,8 +102,10 @@ namespace Butler
             {
                 timer1.Stop();
 
+                var config = new Configuration().Load();
+
                 // get latest build
-                JenkinsJob job = JsonHelpers.GetJsonDataFor<JenkinsJob>(@"/job/CCWeb/api/json");
+                JenkinsJob job = JsonHelpers.GetJsonDataFor<JenkinsJob>(string.Format(@"/job/{0}", config.JobNames[0]));
 
                 JenkinsJobDetails jobDetails = JsonHelpers.GetJsonDataFor<JenkinsJobDetails>(string.Format("/job/{0}/{1}", job.Name, job.LastBuild.Number));
 
